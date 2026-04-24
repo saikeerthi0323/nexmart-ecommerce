@@ -185,11 +185,10 @@ async function loadFeatured() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function loadProducts() {
-  // Render category filter buttons in sidebar
+  await loadCategories();   // ✅ ADD THIS LINE
   renderSidebarCats();
   await applyFilters();
 }
-
 function renderSidebarCats() {
   const el = document.getElementById('catFilters');
   if (!el) return;
@@ -202,9 +201,22 @@ function renderSidebarCats() {
 }
 
 function setCat(slug) {
-  state.activeCategory = slug;
+  state.activeCategory = slug || null;
+
+  // remove active class from all buttons
   document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+
+  // set active button correctly
+  const buttons = document.querySelectorAll('.cat-filter-btn');
+  buttons.forEach(btn => {
+    if (
+      (slug === null && btn.innerText.trim() === 'All') ||
+      (slug && btn.innerText.toLowerCase().includes(slug))
+    ) {
+      btn.classList.add('active');
+    }
+  });
+
   applyFilters();
 }
 
@@ -680,5 +692,6 @@ function toggleMobileMenu() {
 (async function init() {
   await checkAuth();
   await loadCategories();
+  await loadProducts();   // 🔥 ADD THIS LINE
   showPage('home');
 })();
